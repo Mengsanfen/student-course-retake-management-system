@@ -1,0 +1,26 @@
+# Generated dependencies and local data
+node_modules/
+dist/
+target/
+.runtime/
+.data/
+.uploads/
+.env
+.env.*
+!.env.example
+!.env.mysql-test.example
+*.log
+*.tmp
+*.tsbuildinfo
+.idea/
+.vscode/
+__pycache__/
+.venv/
+.pytest_cache/
+pytest-cache-files-*/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.DS_Store
+Thumbs.db
