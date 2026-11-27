@@ -468,7 +468,7 @@ def test_seed_requires_demo_mode_and_does_not_duplicate(system, changed_settings
 
 def test_openapi_and_health_identify_fastapi(client):
     schema = client.get("/openapi.json").json()
-    assert schema["info"]["version"] == "0.2.0"
+    assert schema["info"]["version"] == "0.3.0"
     assert "enrollmentId" in schema["components"]["schemas"]["Submit"]["properties"]
     parameters = schema["paths"]["/api/v1/deferrals"]["post"]["parameters"]
     assert any(p["name"] == "X-CSRF-TOKEN" and p["required"] for p in parameters)

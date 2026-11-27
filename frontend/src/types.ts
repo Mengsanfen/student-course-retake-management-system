@@ -5,7 +5,7 @@ export interface Course { id: number; courseName: string; courseCode: string; te
 export interface Application { id: number; enrollmentId: number; attachmentId: number; attachmentName: string; courseName: string; courseCode: string; studentName: string; studentNumber: string; departmentName: string; term: string; reason: string; status: Status; createdAt: string; updatedAt: string }
 export interface Approval { id: number; stage: Status; reviewerName: string; decision: 'APPROVE' | 'REJECT'; comment: string; createdAt: string }
 export interface Detail { application: Application; approvals: Approval[] }
-export interface Notice { id: number; title: string; content: string; applicationId: number | null; isRead: boolean; createdAt: string }
+export interface Notice { id: number; title: string; content: string; applicationId: number | null; retakeApplicationId?: number | null; isRead: boolean; createdAt: string }
 export interface Page<T> { items: T[]; page: number; size: number; total: number }
 export const roleNames: Record<Role, string> = { STUDENT: '学生', TEACHER: '授课教师', DEPARTMENT_ADMIN: '院系教务', SCHOOL_ADMIN: '校教务' }
 export const statusNames: Record<Status, string> = { TEACHER_REVIEW: '待教师审核', DEPARTMENT_REVIEW: '待院系审核', SCHOOL_REVIEW: '待校教务审核', APPROVED: '已通过', REJECTED: '已驳回' }

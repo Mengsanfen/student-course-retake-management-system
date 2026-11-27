@@ -68,7 +68,9 @@ uv run --locked --no-dev uvicorn app.main:app --host 127.0.0.1 --port 8080
 
 初始检查发现Git根目录位于项目上一级，同时包含另一个项目；本项目目录自身原先没有.git。现已在本目录建立独立仓库，origin仍指向用户提供的远端，分支接续origin/main的初始提交。原上一级仓库未修改。本项目内运行`git rev-parse --show-toplevel`应返回当前项目目录。
 
-当前开发分支`codex/m1-deferral-workflow`。用户规则：每完成一个可演示功能阶段 → 自动检查及文档更新 → 用户验收 → 明确通过后commit、push。验收前不提交、不推送。首次验收后建议将本阶段推到对应分支，再按用户决定是否合并main。
+用户规则：每完成一个可演示功能阶段 → 自动检查及文档更新 → 用户验收 → 明确通过后commit、push。验收前不提交、不推送。验收阶段推到对应分支，是否合并main由用户决定。
+
+M1已验收并推送提交ca55e79到codex/m1-deferral-workflow。当前M2分支codex/m2-retake-workflow基于该提交开发，M2待验收，未提交推送。未自动合并main。
 
 提交建议：`feat: implement deferral application and approval workflow`。每次只暂存本阶段源码、文档、锁文件和迁移；检查`git diff --cached`，排除密码、数据库、上传材料、缓存和日志。保留原始研究文档作为需求来源；如后续需公开仓库，应由用户确认材料公开范围。
 
@@ -82,4 +84,6 @@ uv run --locked --no-dev uvicorn app.main:app --host 127.0.0.1 --port 8080
 - 有会话但无列表：检查账号所属院系与授课关系，不能为排错扩大权限。
 - 考试已过：这是截止规则生效，调整演示开课数据需记录；不能从前端绕过。
 - 数据表不存在：在backend执行`uv run --locked python -m app.manage upgrade`，不要用create_all绕过迁移。
+- M2数据库版本为0002，开发脚本会升级后幂等添加学期、基础课表及3个演示重修班，不覆盖原有申请、成绩、审核或通知。升级前MySQL备份在.runtime/backups/m1-before-m2.sql。
+- 历史0001的SQLite备份不能直接按0002模型导入：先保留原件，在副本上执行迁移，再用同版本源/目标调用同步；版本不一致会拒绝，不覆盖目标数据。
 - pytest或esbuild被沙盒限制：保留错误，通过工具授权运行指定检查；不关闭系统安全设置。

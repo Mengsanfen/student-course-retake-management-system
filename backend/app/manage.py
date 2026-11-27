@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from app import models as m
 from app.config import BACKEND_ROOT, Settings
 from app.database import make_engine, transaction
+from app.demo_retake import seed_retake_demo
 from app.security import hash_password, utcnow
 
 
@@ -27,6 +28,7 @@ def seed_demo(engine, settings: Settings):
         raise ValueError("DEMO_PASSWORD must be 8-72 UTF-8 bytes")
     with transaction(engine, write=True) as connection:
         if connection.scalar(select(func.count()).select_from(m.users)):
+            seed_retake_demo(connection)
             return
         connection.execute(
             m.departments.insert(),
@@ -99,6 +101,7 @@ def seed_demo(engine, settings: Settings):
                 ]
             ],
         )
+        seed_retake_demo(connection)
 
 
 def main():

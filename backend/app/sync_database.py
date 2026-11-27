@@ -8,7 +8,7 @@ from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 
 from app import models as m
 from app.config import BACKEND_ROOT, Settings
@@ -42,6 +42,14 @@ def sync_empty_database(source, target, upload_dir: Path):
     if source.url == target.url:
         raise RuntimeError("Source and target must be different databases.")
     tables = list(m.metadata.sorted_tables)
+    with source.connect() as connection:
+        source_revision = connection.scalar(text("SELECT version_num FROM alembic_version"))
+    with target.connect() as connection:
+        target_revision = connection.scalar(text("SELECT version_num FROM alembic_version"))
+    if source_revision != target_revision:
+        raise RuntimeError(
+            "Schema revisions differ; upgrade a copy of the source backup before importing."
+        )
     # Explicit BEGIN is required for a consistent read snapshot with SQLite's legacy driver.
     with source.connect() as source_connection:
         if source.dialect.name == "sqlite":

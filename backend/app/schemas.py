@@ -109,6 +109,7 @@ class Notice(DTO):
     application_id: int | None
     is_read: bool
     created_at: datetime
+    retake_application_id: int | None = None
 
 
 class AttachmentResult(DTO):

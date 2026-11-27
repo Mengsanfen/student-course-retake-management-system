@@ -61,3 +61,19 @@ def test_sqlite_backup_includes_wal_and_refuses_to_replace_backup(tmp_path):
         assert backup.execute("SELECT label FROM example WHERE id=1").fetchone()[0] == "最新记录"
     with pytest.raises(RuntimeError, match="already exists"):
         backup_sqlite(source, destination)
+
+
+def test_snapshot_import_requires_matching_migration_versions(system, tmp_path):
+    from sqlalchemy import text
+
+    target = make_engine(f"sqlite:///{(tmp_path / 'old-revision.sqlite3').as_posix()}")
+    try:
+        upgrade(target)
+        with target.begin() as connection:
+            connection.execute(text("UPDATE alembic_version SET version_num='0001'"))
+        with pytest.raises(RuntimeError, match="Schema revisions differ"):
+            sync_empty_database(system[1], target, system[2].upload_dir)
+        with target.connect() as connection:
+            assert connection.scalar(select(func.count()).select_from(m.users)) == 0
+    finally:
+        target.dispose()

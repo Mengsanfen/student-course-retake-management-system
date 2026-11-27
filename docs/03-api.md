@@ -2,7 +2,7 @@
 
 基础路径`/api/v1`，UTF-8 JSON。除health、CSRF获取、登录外需要会话。登录使用form-urlencoded；上传使用multipart；其他写请求使用JSON。登录与所有写操作都带CSRF头。错误格式`{"code":"RULE_VIOLATION","message":"该课程已出分，不能申请缓考"}`。
 
-后端框架为FastAPI，应用版本0.2.0（框架依赖版本见uv.lock）；自动契约见`/openapi.json`，交互文档见`/docs`、`/redoc`。文档中的业务接口需要同源会话，登录表单先GET csrf取得Cookie和令牌，再将令牌填到写接口X-CSRF-TOKEN；登录后须重新GET csrf。OpenAPI只描述契约，数据库和材料下载继续在服务端鉴权。
+后端框架为FastAPI，当前应用版本0.3.0（框架依赖版本见uv.lock）；自动契约见`/openapi.json`，交互文档见`/docs`、`/redoc`。业务接口需要同源会话，登录前后GET csrf取得最新令牌，写接口含X-CSRF-TOKEN。M2接口和样例详见10文档；本篇保留M1接口基线。
 
 ## 1. 已实现接口（M1）
 
@@ -31,7 +31,7 @@ Application：id、enrollmentId、attachmentId、attachmentName、courseName、c
 
 Detail：`{application:Application,approvals:Approval[]}`。Approval含id、stage、reviewerName、decision、comment、createdAt。时间为ISO8601 UTC字符串，客户端按北京时间展示。
 
-Notice：id、title、content、applicationId、isRead、createdAt。客户端当前显示最近100条，申请列表提供分页。
+Notice：id、title、content、applicationId、retakeApplicationId、isRead、createdAt。applicationId指缓考，retakeApplicationId指重修；前端据对应字段打开详情。客户端显示最近100条，申请列表分页。
 
 ## 2. 请求例子
 
@@ -61,9 +61,9 @@ decision只接受APPROVE或REJECT。REJECT的comment不可为空；comment最多
 | 500 | INTERNAL_ERROR | 通用服务错误，服务端日志保留异常信息 |
 | 503 | SERVICE_UNAVAILABLE | 数据库操作暂不可用，需重试或联系管理员 |
 
-## 4. 后续接口规划（尚未实现）
+## 4. M2接口及后续规划
 
-M2：retakes、retakes/{id}/reviews、retake-classes、retake-enrollments、conflict-checks。
+M2已实现：retake-meta、retakes、retakes/{id}、retakes/{id}/reviews、retake-classes、retake-classes/{id}（PATCH）、retake-classes/{id}/conflict-check、retake-enrollments、retake-classes/{id}/students、timetable。权限、输入输出和验收见10文档；OpenAPI同步生成。
 
 M3：exam-arrangements、grade-records、grade-records/{id}/archive。
 

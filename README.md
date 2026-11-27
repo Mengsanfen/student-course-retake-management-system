@@ -4,11 +4,11 @@
 
 ## 当前阶段
 
-M1已于2026-11-27通过用户验收：登录与角色权限、个人课程、缓考申请及材料、教师 → 院系 → 校教务三级审核、轨迹、通知及MySQL接入。用户已授权提交推送M1基线；后续M2重修申请、开班选课与冲突检测将单独交付验收。
+M1已验收推送ca55e79。M2重修申请、双级审核、开班选课、名册、课表与冲突检测已于2026-11-28通过用户验收，授权提交推送codex/m2-retake-workflow。接下来独立开发M3缓考安排、重修成绩录入与归档。
 
 ## 技术方案
 
-用户已于2026-11-27确认采用FastAPI，详见[AI扩展与技术选型](docs/08-ai-and-stack-decision.md)。当前为0.2.0版本，演示业务规则已确认可先推进。
+用户已确认采用FastAPI，详见[AI扩展与技术选型](docs/08-ai-and-stack-decision.md)。当前M2开发版为0.3.0，演示业务规则已确认可先推进。
 
 - 后端：Python 3.12+、FastAPI、Pydantic、SQLAlchemy 2、Alembic、Uvicorn。
 - 前端：Vue 3、TypeScript、Vite、Element Plus。
@@ -40,6 +40,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1 -Target frontend
 | [论文资料索引](docs/07-thesis-evidence.md) | 需求到实现的证据与论文素材目录 |
 | [AI扩展与选型](docs/08-ai-and-stack-decision.md) | FastAPI/Java比较、AI建议与模块边界 |
 | [MySQL同步记录](docs/09-mysql-migration.md) | 本地数据库、数据核对、测试隔离与恢复位置 |
+| [M2设计与验收](docs/10-m2-retake-design.md) | 重修规则、数据表、接口、并发策略、验收步骤 |
+| [M2测试记录](docs/11-m2-test-report.md) | 双数据库回归、浏览器联调、证据及限制 |
 | [变更记录](CHANGELOG.md) | 每阶段交付内容及验收状态 |
 
 启动方式、演示账号和验收流程见开发文档与迭代文档。所有演示数据均为虚构数据。请勿上传真实医疗证明到演示环境。

@@ -1,6 +1,6 @@
 [project]
 name = "retake-management-api"
-version = "0.2.0"
+version = "0.3.0"
 description = "高校学生课程缓考与重修管理系统 API"
 requires-python = ">=3.12"
 dependencies = [

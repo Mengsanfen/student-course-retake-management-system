@@ -11,6 +11,7 @@
 | 系统测试 | 06-test-report.md、测试代码 | 用例、执行命令、实测结果与限制 |
 | 部署与使用 | 04-development.md、05-roadmap-acceptance.md | 环境、账号、启动步骤、验收清单 |
 | 总结与展望 | roadmap和CHANGELOG | 已完成范围、未完成范围、后续对接 |
+| 重修详细设计与专项测试 | 10-m2-retake-design.md、11-m2-test-report.md | 双级审核、班级容量、可解释冲突、并发与浏览器证据 |
 
 ## 2. 后续必须积累
 

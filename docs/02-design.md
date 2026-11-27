@@ -53,9 +53,11 @@ erDiagram
 
 完整字段类型和CHECK约束以`backend/migrations/versions/0001_initial.py`为准，运行期定义在`backend/app/models.py`。测试核对迁移后结构与运行期元数据一致。业务服务校验角色、课程归属和节点，不依赖前端传值。
 
-## 4. 后续实体规划
+## 4. M2与后续实体
 
-retake_applications（重修资格及双层审核）、retake_classes（容量、教师、课程）、class_time_slots（周次、星期、起止节）、retake_enrollments（学生与班级唯一）、exam_arrangements（场地与时间）、grade_records及grade_history（成绩及修改历史）、rule_configs（版本化阈值）、validation_logs（规则ID、版本、输入摘要、结果、理由）、alerts（对象+规则+周期唯一）、audit_logs（操作人、动作、目标、时间）。后续实体尚未迁移，逐阶段新增Alembic revision，已应用迁移不得改写。
+M2通过`0002_retake_workflow.py`新增academic_terms、offering_time_slots、retake_applications、retake_approval_records、retake_classes、retake_class_time_slots、retake_enrollments，并在notifications新增可空retake_application_id。完整关系、字段及锁顺序见10文档。已有0001不修改。
+
+后续规划：exam_arrangements（场地时间）、grade_records及grade_history（成绩与修订）、rule_configs（版本化阈值）、validation_logs（规则依据）、alerts（规则对象周期去重）、audit_logs（操作审计）。这些实体尚未实现，后续新增迁移。
 
 冲突判定：星期相同，周次区间有交集，节次区间有交集。以后若引入单双周，需改为实际周次集合交集。班级容量通过事务锁或条件更新保证，不能只先查询再插入。
 

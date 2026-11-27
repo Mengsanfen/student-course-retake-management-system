@@ -137,3 +137,113 @@ sessions = sa.Table(
     sa.Column("csrf_token", sa.String(64), nullable=False),
     sa.Column("expires_at", UTCDateTime(), nullable=False, index=True),
 )
+
+academic_terms = sa.Table(
+    "academic_terms",
+    metadata,
+    sa.Column("id", ID, primary_key=True),
+    sa.Column("name", sa.String(60), nullable=False, unique=True),
+    sa.Column("week_count", sa.Integer, nullable=False),
+    sa.CheckConstraint("week_count BETWEEN 1 AND 30", name="ck_term_weeks"),
+)
+offering_slots = sa.Table(
+    "offering_time_slots",
+    metadata,
+    sa.Column("id", ID, primary_key=True),
+    sa.Column("offering_id", ID, sa.ForeignKey("course_offerings.id"), nullable=False),
+    sa.Column("start_week", sa.Integer, nullable=False),
+    sa.Column("end_week", sa.Integer, nullable=False),
+    sa.Column("weekday", sa.Integer, nullable=False),
+    sa.Column("start_period", sa.Integer, nullable=False),
+    sa.Column("end_period", sa.Integer, nullable=False),
+    sa.Column("room", sa.String(60), nullable=False),
+    sa.CheckConstraint(
+        "start_week>=1 AND end_week>=start_week AND end_week<=30 AND weekday BETWEEN 1 AND 7 AND start_period>=1 AND end_period>=start_period AND end_period<=12",
+        name="ck_offering_slot",
+    ),
+)
+retakes = sa.Table(
+    "retake_applications",
+    metadata,
+    sa.Column("id", ID, primary_key=True),
+    sa.Column("student_id", ID, sa.ForeignKey("users.id"), nullable=False),
+    sa.Column("enrollment_id", ID, sa.ForeignKey("enrollments.id"), nullable=False),
+    sa.Column("course_id", ID, sa.ForeignKey("courses.id"), nullable=False),
+    sa.Column("term_id", ID, sa.ForeignKey("academic_terms.id"), nullable=False),
+    sa.Column("reason", sa.String(1000), nullable=False),
+    sa.Column("status", sa.String(30), nullable=False),
+    sa.Column("is_active", sa.Boolean, nullable=True),
+    sa.Column("created_at", UTCDateTime(), nullable=False),
+    sa.Column("updated_at", UTCDateTime(), nullable=False),
+    sa.UniqueConstraint("student_id", "course_id", "term_id", "is_active", name="uq_active_retake"),
+    sa.CheckConstraint(
+        "status IN ('DEPARTMENT_REVIEW','SCHOOL_REVIEW','APPROVED','REJECTED','ENROLLED')",
+        name="ck_retake_status",
+    ),
+    sa.CheckConstraint(
+        "(status='REJECTED' AND is_active IS NULL) OR (status<>'REJECTED' AND is_active IS NOT NULL AND is_active=1)",
+        name="ck_retake_active",
+    ),
+    sa.Index("idx_retake_status", "status", "created_at"),
+)
+retake_approvals = sa.Table(
+    "retake_approval_records",
+    metadata,
+    sa.Column("id", ID, primary_key=True),
+    sa.Column("application_id", ID, sa.ForeignKey("retake_applications.id"), nullable=False),
+    sa.Column("reviewer_id", ID, sa.ForeignKey("users.id"), nullable=False),
+    sa.Column("stage", sa.String(30), nullable=False),
+    sa.Column("decision", sa.String(10), nullable=False),
+    sa.Column("comment", sa.String(500), nullable=False),
+    sa.Column("created_at", UTCDateTime(), nullable=False),
+    sa.UniqueConstraint("application_id", "stage", name="uq_retake_approval_stage"),
+    sa.CheckConstraint("stage IN ('DEPARTMENT_REVIEW','SCHOOL_REVIEW')", name="ck_retake_stage"),
+    sa.CheckConstraint("decision IN ('APPROVE','REJECT')", name="ck_retake_decision"),
+)
+retake_classes = sa.Table(
+    "retake_classes",
+    metadata,
+    sa.Column("id", ID, primary_key=True),
+    sa.Column("name", sa.String(80), nullable=False),
+    sa.Column("course_id", ID, sa.ForeignKey("courses.id"), nullable=False),
+    sa.Column("term_id", ID, sa.ForeignKey("academic_terms.id"), nullable=False),
+    sa.Column("teacher_id", ID, sa.ForeignKey("users.id"), nullable=False),
+    sa.Column("capacity", sa.Integer, nullable=False),
+    sa.Column("room", sa.String(60), nullable=False),
+    sa.Column("status", sa.String(10), nullable=False),
+    sa.Column("created_by", ID, sa.ForeignKey("users.id"), nullable=False),
+    sa.Column("created_at", UTCDateTime(), nullable=False),
+    sa.UniqueConstraint("term_id", "name", name="uq_retake_class_name"),
+    sa.CheckConstraint("capacity BETWEEN 1 AND 200", name="ck_class_capacity"),
+    sa.CheckConstraint("status IN ('OPEN','CLOSED')", name="ck_class_status"),
+)
+retake_slots = sa.Table(
+    "retake_class_time_slots",
+    metadata,
+    sa.Column("id", ID, primary_key=True),
+    sa.Column("class_id", ID, sa.ForeignKey("retake_classes.id"), nullable=False),
+    sa.Column("start_week", sa.Integer, nullable=False),
+    sa.Column("end_week", sa.Integer, nullable=False),
+    sa.Column("weekday", sa.Integer, nullable=False),
+    sa.Column("start_period", sa.Integer, nullable=False),
+    sa.Column("end_period", sa.Integer, nullable=False),
+    sa.CheckConstraint(
+        "start_week>=1 AND end_week>=start_week AND end_week<=30 AND weekday BETWEEN 1 AND 7 AND start_period>=1 AND end_period>=start_period AND end_period<=12",
+        name="ck_retake_slot",
+    ),
+)
+retake_enrollments = sa.Table(
+    "retake_enrollments",
+    metadata,
+    sa.Column("id", ID, primary_key=True),
+    sa.Column(
+        "application_id", ID, sa.ForeignKey("retake_applications.id"), nullable=False, unique=True
+    ),
+    sa.Column("student_id", ID, sa.ForeignKey("users.id"), nullable=False),
+    sa.Column("class_id", ID, sa.ForeignKey("retake_classes.id"), nullable=False),
+    sa.Column("created_at", UTCDateTime(), nullable=False),
+    sa.UniqueConstraint("student_id", "class_id", name="uq_student_retake_class"),
+)
+notifications.append_column(
+    sa.Column("retake_application_id", ID, sa.ForeignKey("retake_applications.id"))
+)

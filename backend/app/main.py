@@ -68,9 +68,9 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
 
     app = FastAPI(
         title="高校学生课程缓考与重修管理系统",
-        version="0.2.0",
+        version="0.3.0",
         lifespan=lifespan,
-        description="M1：会话认证、私有材料、缓考申请、三级审核、轨迹与通知。时间为UTC，字段camelCase。",
+        description="M1缓考闭环；M2重修申请、双级审核、开班选课、课表及冲突检测。时间为UTC，字段camelCase。",
         responses={
             code: {"model": ApiError} for code in (400, 401, 403, 404, 409, 413, 422, 500, 503)
         },
@@ -141,7 +141,7 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     def health():
         with transaction(engine) as connection:
             connection.execute(text("SELECT 1"))
-        return {"status": "UP", "version": "0.2.0", "backend": "FastAPI"}
+        return {"status": "UP", "version": "0.3.0", "backend": "FastAPI"}
 
     @app.get("/api/v1/auth/csrf", tags=["认证"])
     def csrf(request: Request, response: Response):
@@ -299,6 +299,9 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
             )
         return Response(status_code=204)
 
+    from app.retake_api import create_router
+
+    app.include_router(create_router(engine))
     return app
 
 
